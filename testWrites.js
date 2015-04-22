@@ -4,6 +4,7 @@ var MongoClient = require('mongodb').MongoClient,
     async = require('async'),
     apply = async.apply,
     entities = [],
+    ATTRIBUTE_MEAN = 20,
     initialTime,
     globalDb;
 
@@ -57,9 +58,18 @@ function initializeDb(callback) {
 }
 
 function generateEntity() {
-  var id = uuid.v4();
+  var id = uuid.v4(),
+      entity = {
+         id: id
+      }, 
+      attributes = Math.floor(Math.random()*ATTRIBUTE_MEAN)*2;
+
+  for (var i = 0; i < attributes; i++) {
+    entity[uuid.v4()] = uuid.v4();
+  }
+
   entities.push(id);
-  return {id: id, a: uuid.v4(), b: uuid.v4(), c: {d: uuid.v4()} };
+  return entity;
 }
 
 function popEntity() {
@@ -100,12 +110,12 @@ function cleanUp(error) {
 }
 
 function startTimer(name, callback) {
-  console.time(name);
+  console.time('-> ' + name);
   callback();
 }
 
 function stopTimer(name, callback) {
-  console.timeEnd(name);
+  console.timeEnd('-> ' + name);
   callback();
 }
 
@@ -181,7 +191,7 @@ if (process.env['TARGET_DB']) {
 		if (process.argv[2] === 'serial') {
 			executeSerial(5000);			
 		} else {
-			executeParallel(5, 3000);
+			executeParallel(5, 5000);
 		}
 	}
 } else {
