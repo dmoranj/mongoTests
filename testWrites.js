@@ -5,7 +5,7 @@ var MongoClient = require('mongodb').MongoClient,
     apply = async.apply,
     config = require('./config.json'),
     entities = [],
-    ATTRIBUTE_MEAN = 20,
+    ATTRIBUTE_MEAN = config.numberOfAttributes,
     initialTime,
     globalDb;
 

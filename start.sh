@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PROCESSES=5
+PROCESSES=10
 
 rm results.log
 

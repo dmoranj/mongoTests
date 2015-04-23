@@ -1,7 +1,8 @@
 {
-  "queries": "0.2",
-  "inserts": "0.4",
-  "deletes": "0.4",
+  "queries": "0.60",
+  "inserts": "0.20",
+  "deletes": "0.20",
+  "numberOfAttributes": "10",
   "agents": "5",
   "delay": "50",
   "requests": "5000"
