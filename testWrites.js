@@ -3,6 +3,7 @@ var MongoClient = require('mongodb').MongoClient,
     uuid = require('node-uuid'),
     async = require('async'),
     apply = async.apply,
+    config = require('./config.json'),
     entities = [],
     ATTRIBUTE_MEAN = 20,
     initialTime,
@@ -136,17 +137,26 @@ function executeSerial(size) {
   ], cleanUp);
 }
 
+function generateFunctions() {
+	var functions = [];
+
+	for (var i = 0; i < Math.floor(config.queries * 100); i++) {
+		functions.push(apply(readDocument, 'testCollection', i));
+        }
+	for (var i = 0; i < Math.floor(config.inserts* 100); i++) {
+		functions.push(apply(insertDocument, 'testCollection', generateEntity, i));
+        }
+	for (var i = 0; i < Math.floor(config.deletes * 100); i++) {
+		functions.push(apply(removeDocument, 'testCollection', i));
+        }
+ 
+        return functions
+}
+
 function agent(times, agentId, callback) {
   var count = 0,
       errors = 0,
-      functions = [
-        apply(insertDocument, 'testCollection', generateEntity, count),
-        apply(readDocument, 'testCollection', count),
-        apply(readDocument, 'testCollection', count),
-        apply(insertDocument, 'testCollection', generateEntity, count),
-        apply(removeDocument, 'testCollection', count)	,
-        apply(insertDocument, 'testCollection', generateEntity, count)
-      ];
+      functions = generateFunctions();
 
   async.whilst(
     function () { return count < times; },
@@ -162,7 +172,8 @@ function agent(times, agentId, callback) {
 			console.log('Ay el error %j' + error); 
 			errors++;
 		}
-		innerCallback();
+
+		setTimeout(innerCallback, Math.random() * config.delay);
 	});
     },
     function (err) {
@@ -189,9 +200,9 @@ if (process.env['TARGET_DB']) {
 		console.log('Use:\n\tnode testWrites.sh <serial|parallel>');
 	} else {
 		if (process.argv[2] === 'serial') {
-			executeSerial(5000);			
+			executeSerial(config.requests);			
 		} else {
-			executeParallel(5, 5000);
+			executeParallel(config.agents, config.requests);
 		}
 	}
 } else {
