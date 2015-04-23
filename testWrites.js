@@ -183,11 +183,13 @@ function agent(times, agentId, callback) {
 );
 }
 
+
 function executeParallel(agents, size) {
   console.log('%d Agents executing %d operations: %d', agents, size, agents*size);  
   async.series([
     initializeDb,
     prepare,
+    apply(test1, config.initialLoad),
     apply(startTimer, 'TestRandom'),
     apply(async.times, agents, apply(agent, size)),
     apply(stopTimer, 'TestRandom')
